@@ -1,0 +1,59 @@
+{
+  "name": "sd-work-manager",
+  "version": "0.1.0",
+  "description": "Work manager of sd-work-node",
+  "engines": {
+    "node": ">= 14.16 <15"
+  },
+  "devDependencies": {
+    "@types/jest": "~26.0.23",
+    "@types/koa": "^2.13.1",
+    "@types/koa__router": "^8.0.4",
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/koa-json": "^2.0.18",
+    "@types/node": "^14.14.45",
+    "@typescript-eslint/eslint-plugin": "~4.23.0",
+    "@typescript-eslint/parser": "~4.23.0",
+    "eslint": "~7.26.0",
+    "eslint-config-prettier": "~8.3.0",
+    "eslint-plugin-jest": "~24.3.6",
+    "jest": "~26.6.3",
+    "prettier": "~2.3.0",
+    "rimraf": "~3.0.2",
+    "ts-jest": "~26.5.6",
+    "tsutils": "~3.21.0",
+    "typescript": "~4.2.4"
+  },
+  "scripts": {
+    "start": "node build/src/main.js -c config.json",
+    "clean": "rimraf coverage build tmp",
+    "build": "tsc -p tsconfig.release.json",
+    "build:watch": "tsc -w -p tsconfig.release.json",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "author": "9chu <1871361697@qq.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "inversify": "^5.1.1",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-compress": "^5.1.0",
+    "koa-json": "^2.0.2",
+    "log4js": "^6.3.0",
+    "moment": "^2.29.1",
+    "mysql2": "^2.3.3",
+    "pg": "^8.6.0",
+    "pg-hstore": "^2.3.3",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.6.2",
+    "sqlite3": "^5.1.2",
+    "tslib": "~2.2.0",
+    "yargs": "^17.0.1"
+  },
+  "volta": {
+    "node": "14.16.1"
+  }
+}
