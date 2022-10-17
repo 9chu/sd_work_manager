@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { Context } from 'koa';
 import { injectable, inject } from 'inversify';
 import { SERVICE_TYPES } from '../types';
 import { ILoggingService, Logger } from '../abstract/ILoggingService';
@@ -15,6 +16,7 @@ import { blobToBase64Array, base64ArrayToBlob } from '../../utils/ImageArrayBlob
 
 
 interface QueuedWorker {
+  context: Context;
   incomingTime: number;
   resolve: (resp: TaskPullResponse) => void;
 }
@@ -29,7 +31,7 @@ export class TaskDispatchService implements ITaskDispatchService {
   #logger: Logger;
   #config: IAppConfigService;
   #storage: IStorageService;
-  
+
   #lastCheckDbTime = 0;
   #workers: QueuedWorker[] = [];
 
@@ -43,7 +45,7 @@ export class TaskDispatchService implements ITaskDispatchService {
     this.#logger = loggingService.createLogger('TaskDispatchService');
     this.#config = appConfigService;
     this.#storage = storageService;
-    
+
     // 注册服务
     webApiService.register('TaskDispatch', this);
 
@@ -101,7 +103,7 @@ export class TaskDispatchService implements ITaskDispatchService {
 
       // 获取所有等待的任务
       const pendingTasks = await this.#storage.fetchPendingTasks(this.#workers.length);
-      
+
       // 分派任务
       for (const t of pendingTasks) {
         // 取得一个 worker
@@ -173,10 +175,24 @@ export class TaskDispatchService implements ITaskDispatchService {
     }
   }
 
+  private onPullTaskClosed(context: Context) {
+    for (let i = 0; i < this.#workers.length; ++i) {
+      const w = this.#workers[i];
+      if (w.context === context) {
+        this.#workers.splice(i, 1);
+        this.#logger.error(`Pulling worker is closed, remote=${context.req.socket.remoteAddress}`);
+        break;
+      }
+    }
+  }
+
   @webApiMethod()
-  pullTask(): Promise<TaskPullResponse> {
+  pullTask(@webApiArg('_', WebApiArgTypes.bindContext) context: Context): Promise<TaskPullResponse> {
+    context.res.once("close", () => this.onPullTaskClosed(context));
+
     return new Promise<TaskPullResponse>((resolve) => {
       const w: QueuedWorker = {
+        context,
         incomingTime: Date.now(),
         resolve,
       };

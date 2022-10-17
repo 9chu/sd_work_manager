@@ -111,47 +111,29 @@ export class WebApiService implements IWebApiService {
                 const desc = argOpts[argPos];
 
                 // 获取值
-                let reqValue = reqBody[desc.alias];
+                let reqValue;
 
-                // 检查是否必须值
-                if (undefined === reqValue || null === reqValue) {
-                  if (desc.flags === WebApiArgFlags.required) {
-                    this.#logger.error(`Request missing argument ${desc.alias}, path: ${callPath}`);
-                    ctx.body = {
-                      code: WebApiErrorCodes.missingArgument,
-                      msg: `Missing argument ${desc.alias}`,
-                      data: null,
-                    };
-                    return;
-                  }
+                // 处理特殊类型
+                if (desc.type === WebApiArgTypes.bindContext) {
+                  reqValue = ctx;
                 } else {
-                  // 类型检查
-                  if (desc.type === WebApiArgTypes.bool && typeof reqValue !== 'boolean') {
-                    this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
-                    ctx.body = {
-                      code: WebApiErrorCodes.badArgumentType,
-                      msg: `Argument ${desc.alias} invalid type`,
-                      data: null,
-                    };
-                    return;
-                  } else if (desc.type === WebApiArgTypes.double && typeof reqValue !== 'number') {
-                    this.#logger.error(`Bad argument ${desc.alias}, path: ${callPath}, found: ${typeof reqValue}`);
-                    ctx.body = {
-                      code: WebApiErrorCodes.badArgumentType,
-                      msg: `Argument ${desc.alias} invalid type`,
-                      data: null,
-                    };
-                    return;
-                  } else if (desc.type === WebApiArgTypes.str && typeof reqValue !== 'string') {
-                    this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
-                    ctx.body = {
-                      code: WebApiErrorCodes.badArgumentType,
-                      msg: `Argument ${desc.alias} invalid type`,
-                      data: null,
-                    };
-                    return;
-                  } else if (desc.type === WebApiArgTypes.date) {
-                    if (typeof reqValue !== 'number' && typeof reqValue !== 'string') {
+                  // 获取值
+                  reqValue = reqBody[desc.alias];
+
+                  // 检查是否必须值
+                  if (undefined === reqValue || null === reqValue) {
+                    if (desc.flags === WebApiArgFlags.required) {
+                      this.#logger.error(`Request missing argument ${desc.alias}, path: ${callPath}`);
+                      ctx.body = {
+                        code: WebApiErrorCodes.missingArgument,
+                        msg: `Missing argument ${desc.alias}`,
+                        data: null,
+                      };
+                      return;
+                    }
+                  } else {
+                    // 类型检查
+                    if (desc.type === WebApiArgTypes.bool && typeof reqValue !== 'boolean') {
                       this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
                       ctx.body = {
                         code: WebApiErrorCodes.badArgumentType,
@@ -159,17 +141,43 @@ export class WebApiService implements IWebApiService {
                         data: null,
                       };
                       return;
-                    } else {
-                      reqValue = new Date(reqValue);
+                    } else if (desc.type === WebApiArgTypes.double && typeof reqValue !== 'number') {
+                      this.#logger.error(`Bad argument ${desc.alias}, path: ${callPath}, found: ${typeof reqValue}`);
+                      ctx.body = {
+                        code: WebApiErrorCodes.badArgumentType,
+                        msg: `Argument ${desc.alias} invalid type`,
+                        data: null,
+                      };
+                      return;
+                    } else if (desc.type === WebApiArgTypes.str && typeof reqValue !== 'string') {
+                      this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
+                      ctx.body = {
+                        code: WebApiErrorCodes.badArgumentType,
+                        msg: `Argument ${desc.alias} invalid type`,
+                        data: null,
+                      };
+                      return;
+                    } else if (desc.type === WebApiArgTypes.date) {
+                      if (typeof reqValue !== 'number' && typeof reqValue !== 'string') {
+                        this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
+                        ctx.body = {
+                          code: WebApiErrorCodes.badArgumentType,
+                          msg: `Argument ${desc.alias} invalid type`,
+                          data: null,
+                        };
+                        return;
+                      } else {
+                        reqValue = new Date(reqValue);
+                      }
+                    } else if (desc.type === WebApiArgTypes.object && typeof reqValue !== 'object') {
+                      this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
+                      ctx.body = {
+                        code: WebApiErrorCodes.badArgumentType,
+                        msg: `Argument ${desc.alias} invalid type`,
+                        data: null,
+                      };
+                      return;
                     }
-                  } else if (desc.type === WebApiArgTypes.object && typeof reqValue !== 'object') {
-                    this.#logger.error(`Request bad argument ${desc.alias}, path: ${callPath}`);
-                    ctx.body = {
-                      code: WebApiErrorCodes.badArgumentType,
-                      msg: `Argument ${desc.alias} invalid type`,
-                      data: null,
-                    };
-                    return;
                   }
                 }
 

@@ -1,3 +1,5 @@
+import { Context } from 'koa';
+
 export interface Tex2ImgParameters {
   width: number;
   height: number;
@@ -70,7 +72,7 @@ export interface ITaskDispatchService {
   /**
    * 拉取任务
    */
-  pullTask(): Promise<TaskPullResponse>;
+  pullTask(context: Context): Promise<TaskPullResponse>;
 
   /**
    * 更新任务状态

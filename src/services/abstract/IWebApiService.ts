@@ -26,6 +26,7 @@ export enum WebApiArgTypes {
   date,
   array,
   object,
+  bindContext,
 }
 
 export enum WebApiArgFlags {
