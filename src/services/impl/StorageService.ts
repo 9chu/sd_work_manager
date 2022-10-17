@@ -240,16 +240,16 @@ export class StorageService implements IStorageService {
     if (cnt === 0)
       throw new Error(`Task state is already changed`);
   }
-  
+
   async setTaskError(taskId: number, msg: string): Promise<void> {
     const [cnt] = await this.#sdTaskModel.update({
         status: SDTaskStatus.error,
-        errMsg: msg,
+        errMsg: msg.length > 250 ? msg.slice(0, 250) : msg,
         workerFinishAt: new Date(),
       }, {
         where: {
           status: {
-            [Op.notIn]: [SDTaskStatus.error, SDTaskStatus.finished] 
+            [Op.notIn]: [SDTaskStatus.error, SDTaskStatus.finished]
           },
           id: taskId,
         }
