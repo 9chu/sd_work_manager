@@ -35,6 +35,8 @@ npm run build && npm run start
 
 当启动后，服务对外以 HTTP API 形式提供访问。
 
+所有请求以`POST`方式进行，并且需要携带`X-API-SECRET`头进行鉴权（对应`webApiSecret`配置项）。
+
 需要注意，本服务因为是对内使用，故参数均未进行严格校验，请确保服务上游做好相应检查。
 
 ### /api/Task/submitTxt2ImgTask
